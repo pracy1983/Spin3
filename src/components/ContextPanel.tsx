@@ -23,7 +23,7 @@ export function ContextPanel() {
     <div className="w-full p-4 lg:p-6 bg-white rounded-lg shadow-lg space-y-4">
       <div className="flex items-center gap-2 mb-4">
         <Info className="w-6 h-6 text-indigo-600" />
-        <h2 className="text-xl font-semibold text-gray-800">Contexto da Entrevista</h2>
+        <h2 className="text-xl font-semibold text-gray-800">Contexto da Venda</h2>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -36,10 +36,10 @@ export function ContextPanel() {
           >
             <div className="flex items-center gap-2 mb-2">
               <Upload className="w-5 h-5 text-indigo-600" />
-              <h3 className="text-lg font-medium">Sobre o Convidado</h3>
+              <h3 className="text-lg font-medium">Sobre o Cliente</h3>
             </div>
             <p className="text-sm text-gray-600">
-              Adicione informações sobre o convidado para gerar perguntas mais relevantes
+              Adicione informações sobre o cliente para gerar perguntas mais relevantes
             </p>
           </button>
           {summaries.guest && (
@@ -61,10 +61,10 @@ export function ContextPanel() {
           >
             <div className="flex items-center gap-2 mb-2">
               <Upload className="w-5 h-5 text-indigo-600" />
-              <h3 className="text-lg font-medium">Sobre o Podcast</h3>
+              <h3 className="text-lg font-medium">Sobre o Produto/Serviço</h3>
             </div>
             <p className="text-sm text-gray-600">
-              Adicione informações sobre o podcast para melhor contextualização
+              Adicione informações sobre o produto/serviço para melhor contextualização
             </p>
           </button>
           {summaries.podcast && (

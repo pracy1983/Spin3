@@ -1,4 +1,4 @@
-import { Mic, LogOut } from 'lucide-react'
+import { DollarSign, LogOut } from 'lucide-react'
 import { useAuthStore } from '../stores/authStore'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase/supabase-client'
@@ -42,7 +42,7 @@ export function Layout({ children }: LayoutProps) {
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           {/* Logo e título */}
           <div className="flex items-center gap-2">
-            <Mic className="w-8 h-8 text-indigo-600" />
+            <DollarSign className="w-8 h-8 text-indigo-600" />
             <h1 className="text-2xl font-bold text-gray-900">SpinSeller Helper</h1>
           </div>
           
