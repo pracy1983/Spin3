@@ -21,11 +21,11 @@ export function SuggestionsPanel({ suggestions, error }: SuggestionsPanelProps) 
   } = useSuggestions(suggestions);
 
   return (
-    <div className="w-full lg:w-1/2 p-4 lg:p-6 bg-white rounded-lg shadow-lg">
+    <div className="w-full lg:w-1/2 p-4 lg:p-6 bg-gray-800/80 rounded-lg shadow-lg shadow-purple-500/5 border border-purple-500/10">
       <div className="flex items-center justify-between gap-2 mb-4">
         <div className="flex items-center gap-2">
-          <BrainCircuit className="w-6 h-6 text-indigo-600" />
-          <h2 className="text-xl font-semibold text-gray-800">AI Suggestions</h2>
+          <BrainCircuit className="w-6 h-6 text-purple-400" />
+          <h2 className="text-xl font-semibold text-white">AI Suggestions</h2>
         </div>
         <SuggestionControls
           onPinHighlighted={pinHighlightedSuggestions}
@@ -34,9 +34,9 @@ export function SuggestionsPanel({ suggestions, error }: SuggestionsPanelProps) 
       </div>
       <div ref={containerRef} className="h-[calc(50vh-8rem)] lg:h-[calc(100vh-12rem)] overflow-y-auto">
         {error ? (
-          <div className="p-4 bg-red-50 rounded-lg flex items-start gap-2">
-            <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-            <p className="text-red-700">{error}</p>
+          <div className="p-4 bg-red-900/30 rounded-lg flex items-start gap-2 border border-red-500/20">
+            <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+            <p className="text-red-300">{error}</p>
           </div>
         ) : (
           visibleSuggestions.map((suggestion, index) => (
