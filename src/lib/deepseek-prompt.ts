@@ -44,6 +44,9 @@ IMPORTANTE:
   2. Guiem para a próxima fase quando apropriado
   3. Explorem consequências de problemas identificados
 - Mantenha as perguntas diretas e concisas
+- Faça sempre frases curtas, com palavras chave, pra que o vendedor entenda rápido eleia rápido
+- As frases dem ser de fácil leitura
+- Nunca repita perguntas 
 - Responda sempre na língua da transcrição
 
 NÃO GERE SUGESTÕES APENAS SE:
@@ -83,7 +86,9 @@ Fase: [NEED_PAYOFF] - Cliente expressando necessidade de solução
 - Nunca faça perguntas sobre algo que o cliente já respondeu
 - Nunca repita perguntas já feitas
 - Nunca faça perguntas parecidas
+- Não crie frases longas
 - Nunca pule fases sem ter explorado bem a fase atual
+- Nunca crie perguntas parecidas umas com as outras. Elas devem ser únicas.
 </não fazer>
 
 Siga exatamente os padrões pedidos.

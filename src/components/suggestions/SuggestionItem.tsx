@@ -65,7 +65,7 @@ export function SuggestionItem({
   return (
     <div
       className={clsx(
-        'relative flex items-start gap-2 rounded-lg p-2 transition-colors cursor-pointer group',
+        'relative flex items-start gap-2 rounded-lg p-2 transition-colors cursor-pointer group mb-2',
         getPhaseBackground(phase),
         highlighted && 'ring-2 ring-blue-500'
       )}
@@ -73,7 +73,7 @@ export function SuggestionItem({
     >
       {phase && (
         <div className={clsx(
-          'flex-shrink-0 rounded px-2 py-1 text-xs font-medium',
+          'flex-shrink-0 rounded px-2 py-1 text-xs font-medium self-center',
           getPhaseColor(phase)
         )}>
           {SPIN_PHASES[phase].label}

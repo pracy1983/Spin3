@@ -22,12 +22,12 @@ export function RecordButton({ isRecording, onToggleRecording }: RecordButtonPro
     <button
       onClick={handleClick}
       disabled={isLoading}
-      className={`fixed bottom-4 lg:bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 lg:px-6 py-3 rounded-full text-white font-medium transition-all shadow-lg ${
+      className={`fixed bottom-4 lg:bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 px-6 lg:px-8 py-3 rounded-full text-white font-medium transition-all duration-300 shadow-lg hover:shadow-purple-500/20 ${
         isLoading 
-          ? 'bg-gray-400 cursor-wait' 
+          ? 'bg-gray-700 cursor-wait border border-gray-600' 
           : isRecording 
-            ? 'bg-red-500 hover:bg-red-600' 
-            : 'bg-indigo-600 hover:bg-indigo-700'
+            ? 'bg-red-500/80 hover:bg-red-500 border border-red-400' 
+            : 'bg-purple-600/80 hover:bg-purple-600 border border-purple-400'
       }`}
     >
       {isLoading ? (
@@ -38,12 +38,12 @@ export function RecordButton({ isRecording, onToggleRecording }: RecordButtonPro
       ) : isRecording ? (
         <>
           <MicOff className="w-5 h-5" />
-          <span className="hidden sm:inline">Parar Gravação</span>
+          <span className="hidden sm:inline">Parar</span>
         </>
       ) : (
         <>
           <Mic className="w-5 h-5" />
-          <span className="hidden sm:inline">Iniciar Gravação</span>
+          <span className="hidden sm:inline">Iniciar</span>
         </>
       )}
     </button>

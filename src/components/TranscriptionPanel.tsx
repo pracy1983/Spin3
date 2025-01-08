@@ -22,11 +22,11 @@ export function TranscriptionPanel({ transcript, interimTranscript = '', languag
   const messages = transcript.split('\n\n').filter(Boolean);
 
   return (
-    <div className="w-full lg:w-1/2 p-4 lg:p-6 bg-white rounded-lg shadow-lg">
+    <div className="w-full lg:w-1/2 p-4 lg:p-6 bg-gray-800/80 rounded-lg shadow-lg shadow-purple-500/5 border border-purple-500/10">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
         <div className="flex items-center gap-2">
-          <ScrollText className="w-6 h-6 text-indigo-600" />
-          <h2 className="text-xl font-semibold text-gray-800">Live Transcription</h2>
+          <ScrollText className="w-6 h-6 text-purple-400" />
+          <h2 className="text-xl font-semibold text-white">Live Transcription</h2>
         </div>
         <LanguageSelector 
           selectedLanguage={language} 
@@ -35,12 +35,12 @@ export function TranscriptionPanel({ transcript, interimTranscript = '', languag
       </div>
       <div ref={transcriptRef} className="h-[calc(50vh-8rem)] lg:h-[calc(100vh-12rem)] overflow-y-auto space-y-4">
         {messages.map((message, index) => (
-          <p key={index} className="text-gray-700 p-3 bg-gray-50 rounded-lg">
+          <p key={index} className="text-gray-100 p-3 bg-gray-700/50 rounded-lg border border-purple-500/10">
             {message}
           </p>
         ))}
         {interimTranscript && (
-          <p className="text-gray-400 p-3 bg-gray-50 rounded-lg">
+          <p className="text-gray-400 p-3 bg-gray-700/30 rounded-lg border border-purple-500/5">
             {interimTranscript}
           </p>
         )}
