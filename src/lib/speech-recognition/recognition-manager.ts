@@ -27,14 +27,23 @@ export class SpeechRecognitionManager {
     this.recognition.lang = this.language;
 
     this.recognition.onresult = (event) => {
-      const lastResult = event.results[event.results.length - 1];
-      const text = lastResult[0].transcript;
+      let interimTranscript = '';
+      let finalTranscript = '';
+      
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const result = event.results[i];
+        if (result.isFinal) {
+          finalTranscript += result[0].transcript;
+        } else {
+          interimTranscript += result[0].transcript;
+        }
+      }
+
       const now = Date.now();
 
-      if (lastResult.isFinal) {
-        // Se passou mais de PARAGRAPH_THRESHOLD desde o último final, adiciona quebra de parágrafo
+      if (finalTranscript) {
         const shouldAddParagraphBreak = (now - this.lastFinalTimestamp) > this.PARAGRAPH_THRESHOLD;
-        const finalText = shouldAddParagraphBreak ? `\n\n${text}` : text;
+        const finalText = shouldAddParagraphBreak ? `\n\n${finalTranscript}` : finalTranscript;
         
         this.callbacks.onFinalTranscript({
           text: finalText,
@@ -42,9 +51,11 @@ export class SpeechRecognitionManager {
         });
         
         this.lastFinalTimestamp = now;
-      } else {
+      }
+      
+      if (interimTranscript) {
         this.callbacks.onInterimTranscript({
-          text,
+          text: interimTranscript,
           timestamp: now
         });
       }
