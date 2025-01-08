@@ -37,27 +37,26 @@ export function Layout({ children }: LayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
+    <div className="min-h-screen bg-gray-900 transition-all duration-300">
+      <header className="bg-gray-800 shadow-lg border-b border-purple-500/20">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           {/* Logo e título */}
           <div className="flex items-center gap-2">
-            <DollarSign className="w-8 h-8 text-indigo-600" />
-            <h1 className="text-2xl font-bold text-gray-900">SpinSeller Helper</h1>
+            <DollarSign className="w-8 h-8 text-purple-400" />
+            <h1 className="text-2xl font-bold text-white">SpinSeller Helper</h1>
           </div>
           
           {/* Botão de logout */}
           <button
             onClick={handleSignOut}
-            className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-indigo-600 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-gray-700 transition-all duration-300"
           >
             <LogOut className="w-5 h-5" />
             <span>Sair</span>
           </button>
         </div>
       </header>
-
-      {children}
+      <main className="max-w-7xl mx-auto p-4">{children}</main>
     </div>
   )
 }

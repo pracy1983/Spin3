@@ -20,25 +20,25 @@ export function ContextPanel() {
   };
 
   return (
-    <div className="w-full p-4 lg:p-6 bg-white rounded-lg shadow-lg space-y-4">
+    <div className="w-full p-4 lg:p-6 bg-gray-800 rounded-lg shadow-lg shadow-purple-500/5 border border-purple-500/10 space-y-4">
       <div className="flex items-center gap-2 mb-4">
-        <Info className="w-6 h-6 text-indigo-600" />
-        <h2 className="text-xl font-semibold text-gray-800">Contexto da Venda</h2>
+        <Info className="w-6 h-6 text-purple-400" />
+        <h2 className="text-xl font-semibold text-white">Contexto da Venda</h2>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <button
             onClick={() => setShowGuestModal(true)}
-            className={`w-full p-4 border rounded-lg text-left transition-colors ${
-              summaries.guest ? 'bg-indigo-50 border-indigo-200' : 'hover:bg-gray-50'
+            className={`w-full p-4 border rounded-lg text-left transition-all duration-300 ${
+              summaries.guest ? 'bg-purple-900/30 border-purple-500/30' : 'border-gray-700 hover:border-purple-500/30 hover:bg-gray-700'
             }`}
           >
             <div className="flex items-center gap-2 mb-2">
-              <Upload className="w-5 h-5 text-indigo-600" />
-              <h3 className="text-lg font-medium">Sobre o Cliente</h3>
+              <Upload className="w-5 h-5 text-purple-400" />
+              <h3 className="text-lg font-medium text-white">Sobre o Cliente</h3>
             </div>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-400">
               Adicione informações sobre o cliente para gerar perguntas mais relevantes
             </p>
           </button>
@@ -55,15 +55,15 @@ export function ContextPanel() {
         <div>
           <button
             onClick={() => setShowPodcastModal(true)}
-            className={`w-full p-4 border rounded-lg text-left transition-colors ${
-              summaries.podcast ? 'bg-indigo-50 border-indigo-200' : 'hover:bg-gray-50'
+            className={`w-full p-4 border rounded-lg text-left transition-all duration-300 ${
+              summaries.podcast ? 'bg-purple-900/30 border-purple-500/30' : 'border-gray-700 hover:border-purple-500/30 hover:bg-gray-700'
             }`}
           >
             <div className="flex items-center gap-2 mb-2">
-              <Upload className="w-5 h-5 text-indigo-600" />
-              <h3 className="text-lg font-medium">Sobre o Produto/Serviço</h3>
+              <Upload className="w-5 h-5 text-purple-400" />
+              <h3 className="text-lg font-medium text-white">Sobre o Produto/Serviço</h3>
             </div>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-400">
               Adicione informações sobre o produto/serviço para melhor contextualização
             </p>
           </button>
