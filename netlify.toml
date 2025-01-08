@@ -1,9 +1,14 @@
 [build]
-  command = "curl -sSf https://sh.rustup.rs | sh -s -- -y && . $HOME/.cargo/env && rustup default stable && pip install -r requirements.txt && npm install && npm run build"
+  command = "npm install && npm run build"
   publish = "dist"
+  functions = "functions"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
 
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-
