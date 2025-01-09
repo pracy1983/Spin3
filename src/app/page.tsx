@@ -11,15 +11,15 @@ import { useAISuggestions } from '../hooks/useAISuggestions'
 export default function HomePage() {
   const { isRecording, transcript, interimTranscript, toggleRecording, language, changeLanguage } = useTranscription()
   const { suggestions, error: suggestionsError, generateSuggestions } = useAISuggestions()
-  const { user } = useAuthStore()
+  const { user, isAuthenticated } = useAuthStore()
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (!user) {
+    if (!isAuthenticated) {
       navigate('/login')
       return
     }
-  }, [user, navigate])
+  }, [isAuthenticated, navigate])
 
   useEffect(() => {
     if (transcript.trim()) {
