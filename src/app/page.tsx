@@ -1,6 +1,4 @@
 import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAuthStore } from '../stores/authStore'
 import { ContextPanel } from '../components/ContextPanel'
 import { SuggestionsPanel } from '../components/SuggestionsPanel'
 import { TranscriptionPanel } from '../components/TranscriptionPanel'
@@ -11,19 +9,13 @@ import { useAISuggestions } from '../hooks/useAISuggestions'
 export default function HomePage() {
   const { isRecording, transcript, interimTranscript, toggleRecording, language, changeLanguage } = useTranscription()
   const { suggestions, error: suggestionsError, generateSuggestions } = useAISuggestions()
-  const { user, isAuthenticated } = useAuthStore()
-  const navigate = useNavigate()
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login')
-      return
-    }
-  }, [isAuthenticated, navigate])
-
-  useEffect(() => {
-    if (transcript.trim()) {
-      generateSuggestions(transcript)
+    // Só gera sugestões se houver um transcript não-vazio
+    const trimmedTranscript = transcript.trim()
+    if (trimmedTranscript) {
+      console.log('HomePage: Gerando sugestões para:', trimmedTranscript)
+      generateSuggestions(trimmedTranscript)
     }
   }, [transcript, generateSuggestions])
 

@@ -83,6 +83,13 @@ export class SpeechRecognitionManager {
     try {
       await this.recognition?.stop();
       this.isListening = false;
+
+      // Limpa o microfone
+      if (this.recognition) {
+        this.recognition.abort();
+        this.recognition = null;
+        this.initializeRecognition();
+      }
     } catch (error) {
       throw new Error('Erro ao parar reconhecimento de voz');
     }

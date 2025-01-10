@@ -1,29 +1,37 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { PinnedSuggestion } from './types';
 
 export function useSuggestions(suggestions: string[]) {
   const [visibleSuggestions, setVisibleSuggestions] = useState<PinnedSuggestion[]>([]);
 
+  // Atualiza as sugestões apenas quando as props mudam
   useEffect(() => {
-    const newSuggestions = suggestions
-      .filter(suggestion => !visibleSuggestions.some(vs => vs.text === suggestion))
-      .map(suggestion => ({ text: suggestion, isPinned: false, highlighted: false }));
-    
-    const pinnedSuggestions = visibleSuggestions.filter(s => s.isPinned);
-    const unpinnedSuggestions = visibleSuggestions.filter(s => !s.isPinned);
-    
-    setVisibleSuggestions([
-      ...pinnedSuggestions,
-      ...newSuggestions,
-      ...unpinnedSuggestions
-    ]);
+    setVisibleSuggestions(prevSuggestions => {
+      const existingSuggestions = new Set(prevSuggestions.map(s => s.text));
+      const newSuggestions = suggestions
+        .filter(suggestion => !existingSuggestions.has(suggestion))
+        .map(suggestion => ({ text: suggestion, isPinned: false, highlighted: false }));
+      
+      if (newSuggestions.length === 0) {
+        return prevSuggestions;
+      }
+
+      const pinnedSuggestions = prevSuggestions.filter(s => s.isPinned);
+      const unpinnedSuggestions = prevSuggestions.filter(s => !s.isPinned);
+      
+      return [
+        ...pinnedSuggestions,
+        ...newSuggestions,
+        ...unpinnedSuggestions
+      ];
+    });
   }, [suggestions]);
 
-  const handleClose = (index: number) => {
+  const handleClose = useCallback((index: number) => {
     setVisibleSuggestions(prev => prev.filter((_, i) => i !== index));
-  };
+  }, []);
 
-  const toggleHighlight = (index: number, event: React.MouseEvent) => {
+  const toggleHighlight = useCallback((index: number, event: React.MouseEvent) => {
     if ((event.target as HTMLElement).closest('button[aria-label="Close suggestion"]')) {
       return;
     }
@@ -31,33 +39,35 @@ export function useSuggestions(suggestions: string[]) {
     setVisibleSuggestions(prev => prev.map((suggestion, i) => 
       i === index ? { ...suggestion, highlighted: !suggestion.highlighted } : suggestion
     ));
-  };
+  }, []);
 
-  const pinHighlightedSuggestions = () => {
-    const highlighted = visibleSuggestions.filter(s => s.highlighted && !s.isPinned);
-    const notHighlighted = visibleSuggestions.filter(s => !s.highlighted || s.isPinned);
-    
-    const newPinnedSuggestions = highlighted.map(s => ({
-      ...s,
-      isPinned: true,
-      highlighted: false
-    }));
+  const pinHighlightedSuggestions = useCallback(() => {
+    setVisibleSuggestions(prev => {
+      const highlighted = prev.filter(s => s.highlighted && !s.isPinned);
+      const notHighlighted = prev.filter(s => !s.highlighted || s.isPinned);
+      
+      const newPinnedSuggestions = highlighted.map(s => ({
+        ...s,
+        isPinned: true,
+        highlighted: false
+      }));
 
-    const existingPinned = notHighlighted.filter(s => s.isPinned);
-    const unpinned = notHighlighted.filter(s => !s.isPinned);
+      const existingPinned = notHighlighted.filter(s => s.isPinned);
+      const unpinned = notHighlighted.filter(s => !s.isPinned);
 
-    setVisibleSuggestions([
-      ...existingPinned,
-      ...newPinnedSuggestions,
-      ...unpinned
-    ]);
-  };
+      return [
+        ...existingPinned,
+        ...newPinnedSuggestions,
+        ...unpinned
+      ];
+    });
+  }, []);
 
-  const clearUnpinnedSuggestions = () => {
+  const clearUnpinnedSuggestions = useCallback(() => {
     setVisibleSuggestions(prev => prev.filter(s => s.isPinned));
-  };
+  }, []);
 
-  const unpinSuggestion = (index: number) => {
+  const unpinSuggestion = useCallback((index: number) => {
     setVisibleSuggestions(prev => {
       const suggestion = prev[index];
       if (!suggestion.isPinned) return prev;
@@ -71,7 +81,7 @@ export function useSuggestions(suggestions: string[]) {
         ...unpinnedSuggestions
       ];
     });
-  };
+  }, []);
 
   return {
     visibleSuggestions,

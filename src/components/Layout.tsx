@@ -13,9 +13,8 @@ export function Layout({ children }: LayoutProps) {
 
   const handleSignOut = async () => {
     try {
-      // Primeiro, limpa a sessão do Supabase
-      const { error } = await supabase.auth.signOut()
-      if (error) throw error
+      // Primeiro faz logout no Supabase
+      await signOut()
 
       // Limpa o localStorage
       Object.keys(localStorage).forEach(key => {
@@ -24,13 +23,8 @@ export function Layout({ children }: LayoutProps) {
         }
       })
 
-      // Limpa o estado do Zustand
-      await signOut()
-
-      // Força um reload completo da aplicação com URL absoluta
-      const baseUrl = window.location.origin
-      window.location.href = `${baseUrl}/login`
-      setTimeout(() => window.location.reload(), 100)
+      // Redireciona para login
+      navigate('/login')
     } catch (error) {
       console.error('Erro ao fazer logout:', error)
     }

@@ -1,6 +1,5 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase/supabase-client'
-import { useNavigate, useLocation } from 'react-router-dom'
 
 interface User {
   id: string
@@ -13,55 +12,31 @@ export function useAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [user, setUser] = useState<User | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const navigate = useNavigate()
-  const location = useLocation()
-
-  const handleSession = useCallback(async (session: any) => {
-    try {
-      if (session) {
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single()
-
-        if (profileError) {
-          console.error('Erro ao obter perfil:', profileError)
-          return
-        }
-
-        if (profile) {
-          setUser(profile)
-          setIsAuthenticated(true)
-          
-          // Só redireciona se estiver na página de login
-          if (location.pathname === '/login') {
-            navigate(profile.role === 'admin' ? '/admin' : '/')
-          }
-        }
-      } else {
-        setUser(null)
-        setIsAuthenticated(false)
-        if (location.pathname !== '/login') {
-          navigate('/login')
-        }
-      }
-    } catch (error) {
-      console.error('Erro ao processar sessão:', error)
-    }
-  }, [navigate, location.pathname])
 
   useEffect(() => {
     let mounted = true
 
-    const checkUser = async () => {
+    // Função para verificar a sessão atual
+    const checkSession = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession()
-        if (mounted) {
-          await handleSession(session)
+        
+        if (session?.user && mounted) {
+          setUser({
+            id: session.user.id,
+            email: session.user.email!,
+            role: session.user.user_metadata?.role || 'admin'
+          })
+          setIsAuthenticated(true)
+        } else if (mounted) {
+          setUser(null)
+          setIsAuthenticated(false)
         }
-      } catch (error) {
-        console.error('Erro ao verificar usuário:', error)
+      } catch (err) {
+        console.error('Erro ao verificar sessão:', err)
+        if (mounted) {
+          setError(err as string)
+        }
       } finally {
         if (mounted) {
           setIsLoading(false)
@@ -69,57 +44,38 @@ export function useAuth() {
       }
     }
 
-    checkUser()
+    // Verifica a sessão inicial
+    checkSession()
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event, session)
-      if (mounted) {
-        await handleSession(session)
+    // Inscreve para mudanças na autenticação
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!mounted) return
+
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          email: session.user.email!,
+          role: session.user.user_metadata?.role || 'admin'
+        })
+        setIsAuthenticated(true)
+      } else {
+        setUser(null)
+        setIsAuthenticated(false)
       }
+      setIsLoading(false)
     })
 
+    // Limpa a inscrição quando o componente é desmontado
     return () => {
       mounted = false
       subscription.unsubscribe()
     }
-  }, [handleSession])
+  }, []) // Executa apenas uma vez na montagem
 
-  const signIn = async (email: string, password: string) => {
-    try {
-      setError(null)
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-      
-      if (error) {
-        setError(error.message)
-        return { error }
-      }
-
-      return { data }
-    } catch (err) {
-      console.error('Erro no login:', err)
-      setError('Erro ao fazer login')
-      return { error: err }
-    }
-  }
-
-  const signOut = async () => {
-    try {
-      const { error } = await supabase.auth.signOut()
-      if (error) throw error
-    } catch (error) {
-      console.error('Erro ao fazer logout:', error)
-    }
-  }
-
-  return { 
-    isLoading, 
-    isAuthenticated, 
-    user, 
-    error,
-    signIn,
-    signOut 
+  return {
+    user,
+    isLoading,
+    isAuthenticated,
+    error
   }
 }

@@ -1,147 +1,157 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { supabase } from '../lib/supabase/supabase-client'
 
-import { supabase, supabaseAdmin } from '../lib/supabase/supabase-client'
-
-
-
+// Tipagem do usuário
 interface User {
-
   id: string
-
   email: string
-
   role: 'admin' | 'user'
-
 }
 
-
-
+// Tipagem do estado de autenticação
 interface AuthState {
-
   user: User | null
-
   session: any | null
-
   isLoading: boolean
-
+  initialized: boolean
   error: string | null
-
-  setSession: (session: any) => void
-
-  setUser: (user: User | null) => void
-
-  setError: (error: string | null) => void
-
-  signIn: (email: string, password: string) => Promise<{ error?: any }>
-
-  signOut: () => Promise<void>
-
   initialize: () => Promise<void>
-
+  signIn: (email: string, password: string) => Promise<{ error?: any }>
+  signOut: () => Promise<void>
 }
-
-
 
 export const useAuthStore = create<AuthState>()(
-// @ts-ignore
   persist(
-// @ts-ignore
     (set, get) => ({
       user: null,
       session: null,
       isLoading: true,
+      initialized: false,
       error: null,
-      setSession: (session) => set({ session }),
-      setUser: (user) => set({ user }),
-      setError: (error) => set({ error }),
+
       initialize: async () => {
+        if (get().initialized) {
+          console.log('AuthStore: Já inicializado')
+          return
+        }
+
+        console.log('AuthStore: Inicializando...')
         try {
           const { data: { session } } = await supabase.auth.getSession()
+          
           if (session?.user) {
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
-              .single()
-            if (profile) {
-              set({ user: profile, session, error: null })
+            console.log('AuthStore: Sessão encontrada para:', session.user.email)
+            set({ 
+              user: {
+                id: session.user.id,
+                email: session.user.email!,
+                role: session.user.user_metadata?.role || 'user'
+              },
+              session,
+              error: null,
+              isLoading: false,
+              initialized: true
+            })
+          } else {
+            console.log('AuthStore: Nenhuma sessão encontrada')
+            set({ 
+              user: null, 
+              session: null, 
+              error: null, 
+              isLoading: false,
+              initialized: true 
+            })
+          }
+
+          // Listener para mudanças de autenticação
+          const { data: { subscription } } = supabase.auth.onAuthStateChange(
+            async (event, session) => {
+              console.log('AuthStore: Mudança de estado:', event, session?.user?.email)
+              
+              if (session?.user) {
+                set({ 
+                  user: {
+                    id: session.user.id,
+                    email: session.user.email!,
+                    role: session.user.user_metadata?.role || 'user'
+                  },
+                  session,
+                  error: null,
+                  isLoading: false
+                })
+              } else {
+                set({ 
+                  user: null, 
+                  session: null, 
+                  error: null, 
+                  isLoading: false 
+                })
+              }
             }
+          )
+
+          // Cleanup do listener quando o store for destruído
+          return () => {
+            subscription.unsubscribe()
           }
         } catch (error: any) {
-          console.error('Erro ao inicializar:', error.message)
-        } finally {
-          set({ isLoading: false })
+          console.error('AuthStore: Erro ao inicializar:', error)
+          set({ 
+            error: error.message, 
+            isLoading: false,
+            initialized: true 
+          })
         }
       },
+
       signIn: async (email, password) => {
+        set({ isLoading: true, error: null })
         try {
-          // 1. Tenta fazer login
-          let authData = await supabase.auth.signInWithPassword({
+          console.log('AuthStore: Tentando login...')
+          const { data, error } = await supabase.auth.signInWithPassword({
             email,
             password
           })
-          let { data, error: signInError } = authData
-          // 2. Se não encontrou o usuário, cria um novo
-          if (signInError?.message?.includes('Invalid login credentials')) {
-            const { error: signUpError } = await supabase.auth.signUp({
-              email,
-              password,
-              options: {
-                data: { role: 'admin' }
-              }
-            })
-            if (signUpError) throw signUpError
-            // 3. Faz login novamente após criar
-            authData = await supabase.auth.signInWithPassword({
-              email,
-              password
-            })
-            const { data: newData, error: newSignInError } = authData
-            if (newSignInError) throw newSignInError
-            if (!newData.user) throw new Error('Usuário não encontrado')
-            data = newData
-          } else if (signInError) {
-            throw signInError
+
+          if (error) {
+            console.error('AuthStore: Erro no login:', error)
+            throw error
           }
-          // 4. Busca ou cria o perfil
-          const { data: existingProfile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', data.user.id)
-            .single()
-          if (!existingProfile) {
-            const { data: newProfile, error: profileError } = await supabase
-              .from('profiles')
-              .insert([
-                {
-                  id: data.user.id,
-                  email: data.user.email,
-                  role: 'admin'
-                }
-              ])
-              .select()
-              .single()
-            if (profileError) throw profileError
-            set({ user: newProfile, session: data.session, error: null })
-          } else {
-            set({ user: existingProfile, session: data.session, error: null })
+
+          if (data.user) {
+            console.log('AuthStore: Login bem sucedido para:', data.user.email)
+            set({ 
+              user: {
+                id: data.user.id,
+                email: data.user.email!,
+                role: data.user.user_metadata?.role || 'user'
+              },
+              session: data.session,
+              error: null,
+              isLoading: false
+            })
           }
+
           return { error: null }
         } catch (error: any) {
-          console.error('Erro no login:', error)
-          set({ error: error.message })
+          console.error('AuthStore: Erro no login:', error)
+          set({ error: error.message, user: null, session: null, isLoading: false })
           return { error }
         }
       },
+
       signOut: async () => {
+        set({ isLoading: true })
         try {
+          console.log('AuthStore: Iniciando logout...')
           const { error } = await supabase.auth.signOut()
           if (error) throw error
-          set({ user: null, session: null, error: null })
+          set({ user: null, session: null, error: null, isLoading: false })
+          console.log('AuthStore: Logout bem sucedido')
         } catch (error: any) {
-          console.error('Erro no logout:', error)
-          set({ error: error.message })
+          console.error('AuthStore: Erro no logout:', error)
+          set({ error: error.message, isLoading: false })
         }
       }
     }),
@@ -154,4 +164,3 @@ export const useAuthStore = create<AuthState>()(
     }
   )
 )
-
