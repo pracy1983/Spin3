@@ -73,3 +73,8 @@ Este projeto segue os princípios de Clean Architecture e SOLID para garantir:
 
 - Flexibilidade para mudanças
 
+
+
+## Migração para PostgreSQL
+
+Este projeto foi migrado do Supabase para PostgreSQL local.
