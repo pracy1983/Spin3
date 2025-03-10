@@ -27,8 +27,9 @@ export interface AuthResponse {
 // Função para fazer login
 export async function signIn(email: string, password: string): Promise<AuthResponse> {
   try {
-    // No ambiente de desenvolvimento, simulamos a API com uma chamada ao backend
-    if (import.meta.env.DEV) {
+    // Temporariamente, usamos o modo de desenvolvimento em todos os ambientes
+    // até que os endpoints de API sejam implementados no Netlify
+    // if (import.meta.env.DEV) {
       // Verificar se as credenciais são do usuário admin
       if (email === 'admin@example.com' && password === 'admin123') {
         // Simular um login bem-sucedido
@@ -63,7 +64,7 @@ export async function signIn(email: string, password: string): Promise<AuthRespo
           }
         };
       }
-    } else {
+    /* } else {
       // Em produção, faríamos uma chamada real à API
       const response = await fetch('/api/auth/signin', {
         method: 'POST',
@@ -74,7 +75,7 @@ export async function signIn(email: string, password: string): Promise<AuthRespo
       });
       
       return await response.json();
-    }
+    } */
   } catch (error) {
     console.error('Erro ao fazer login:', error);
     return {
@@ -88,8 +89,8 @@ export async function signIn(email: string, password: string): Promise<AuthRespo
 // Função para verificar sessão
 export async function getSession(token?: string): Promise<AuthResponse> {
   try {
-    // No ambiente de desenvolvimento, simulamos a API
-    if (import.meta.env.DEV) {
+    // Temporariamente, usamos o modo de desenvolvimento em todos os ambientes
+    // if (import.meta.env.DEV) {
       if (!token) {
         return { data: { session: null } };
       }
@@ -117,7 +118,7 @@ export async function getSession(token?: string): Promise<AuthResponse> {
       } else {
         return { data: { session: null } };
       }
-    } else {
+    /* } else {
       // Em produção, faríamos uma chamada real à API
       const response = await fetch('/api/auth/session', {
         method: 'GET',
@@ -127,7 +128,7 @@ export async function getSession(token?: string): Promise<AuthResponse> {
       });
       
       return await response.json();
-    }
+    } */
   } catch (error) {
     console.error('Erro ao verificar sessão:', error);
     return { data: { session: null } };
@@ -137,10 +138,10 @@ export async function getSession(token?: string): Promise<AuthResponse> {
 // Função para fazer logout
 export async function signOut(token?: string): Promise<AuthResponse> {
   try {
-    // No ambiente de desenvolvimento, simulamos a API
-    if (import.meta.env.DEV) {
+    // Temporariamente, usamos o modo de desenvolvimento em todos os ambientes
+    // if (import.meta.env.DEV) {
       return { error: undefined };
-    } else {
+    /* } else {
       // Em produção, faríamos uma chamada real à API
       const response = await fetch('/api/auth/signout', {
         method: 'POST',
@@ -150,7 +151,7 @@ export async function signOut(token?: string): Promise<AuthResponse> {
       });
       
       return await response.json();
-    }
+    } */
   } catch (error) {
     console.error('Erro ao fazer logout:', error);
     return {
@@ -164,8 +165,8 @@ export async function signOut(token?: string): Promise<AuthResponse> {
 // Função para registrar um novo usuário
 export async function signUp(email: string, password: string, role: string = 'user'): Promise<AuthResponse> {
   try {
-    // No ambiente de desenvolvimento, simulamos a API
-    if (import.meta.env.DEV) {
+    // Temporariamente, usamos o modo de desenvolvimento em todos os ambientes
+    // if (import.meta.env.DEV) {
       // Simular um registro bem-sucedido
       const user: User = {
         id: 'simulated-id',
@@ -187,7 +188,7 @@ export async function signUp(email: string, password: string, role: string = 'us
           }
         }
       };
-    } else {
+    /* } else {
       // Em produção, faríamos uma chamada real à API
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
@@ -198,7 +199,7 @@ export async function signUp(email: string, password: string, role: string = 'us
       });
       
       return await response.json();
-    }
+    } */
   } catch (error) {
     console.error('Erro ao registrar usuário:', error);
     return {
