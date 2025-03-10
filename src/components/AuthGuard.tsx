@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
-import { useAuthStore } from '../stores/authStore'
+import { usePostgresAuthStore } from '../stores/postgresAuthStore'
 
 interface AuthGuardProps {
   children: React.ReactNode
@@ -8,7 +8,7 @@ interface AuthGuardProps {
 }
 
 export function AuthGuard({ children, requireAdmin = false }: AuthGuardProps) {
-  const { user, isLoading, initialize } = useAuthStore()
+  const { user, isLoading, initialize } = usePostgresAuthStore()
   const location = useLocation()
 
   useEffect(() => {

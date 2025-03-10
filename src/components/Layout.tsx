@@ -1,19 +1,18 @@
 import { DollarSign, LogOut } from 'lucide-react'
-import { useAuthStore } from '../stores/authStore'
+import { usePostgresAuthStore } from '../stores/postgresAuthStore'
 import { useNavigate } from 'react-router-dom'
-import { supabase } from '../lib/supabase/supabase-client'
 
 interface LayoutProps {
   children: React.ReactNode
 }
 
 export function Layout({ children }: LayoutProps) {
-  const { signOut } = useAuthStore()
+  const { signOut } = usePostgresAuthStore()
   const navigate = useNavigate()
 
   const handleSignOut = async () => {
     try {
-      // Primeiro faz logout no Supabase
+      // Faz logout usando o PostgreSQL
       await signOut()
 
       // Limpa o localStorage
@@ -50,6 +49,7 @@ export function Layout({ children }: LayoutProps) {
           </button>
         </div>
       </header>
+      
       <main className="max-w-7xl mx-auto p-4">{children}</main>
     </div>
   )
