@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
 import { signIn, signOut, getSession } from '../lib/api/auth-api'
 
 // Tipagem do usuário
@@ -31,8 +31,9 @@ export const usePostgresAuthStore = create<AuthState>()(
       error: null,
 
       initialize: async () => {
-        if (get().initialized) {
-          console.log('AuthStore: Já inicializado')
+        if (get().initialized && get().user) {
+          console.log('AuthStore: Já inicializado com usuário:', get().user.email)
+          set({ isLoading: false })
           return
         }
 
@@ -40,7 +41,20 @@ export const usePostgresAuthStore = create<AuthState>()(
         try {
           // Recuperar token do localStorage
           const token = localStorage.getItem('auth-token')
-          const response = await getSession(token || undefined)
+          
+          if (!token) {
+            console.log('AuthStore: Nenhum token encontrado')
+            set({ 
+              user: null, 
+              session: null, 
+              error: null, 
+              isLoading: false,
+              initialized: true 
+            })
+            return
+          }
+          
+          const response = await getSession(token)
           const session = response.data?.session
           
           if (session?.user) {
@@ -57,7 +71,9 @@ export const usePostgresAuthStore = create<AuthState>()(
               initialized: true
             })
           } else {
-            console.log('AuthStore: Nenhuma sessão encontrada')
+            console.log('AuthStore: Nenhuma sessão válida encontrada')
+            // Limpar token inválido
+            localStorage.removeItem('auth-token')
             set({ 
               user: null, 
               session: null, 
@@ -66,12 +82,13 @@ export const usePostgresAuthStore = create<AuthState>()(
               initialized: true 
             })
           }
-
-          // Não precisamos de um listener para mudanças de autenticação
-          // como no Supabase, pois estamos gerenciando manualmente
         } catch (error: any) {
           console.error('AuthStore: Erro ao inicializar:', error)
+          // Em caso de erro, limpar o token
+          localStorage.removeItem('auth-token')
           set({ 
+            user: null,
+            session: null,
             error: error.message, 
             isLoading: false,
             initialized: true 
@@ -98,15 +115,18 @@ export const usePostgresAuthStore = create<AuthState>()(
               localStorage.setItem('auth-token', response.data.session.access_token)
             }
             
+            const user = {
+              id: response.data.user.id,
+              email: response.data.user.email,
+              role: response.data.user.role as 'admin' | 'user' || 'user'
+            }
+            
             set({ 
-              user: {
-                id: response.data.user.id,
-                email: response.data.user.email,
-                role: response.data.user.role as 'admin' | 'user' || 'user'
-              },
+              user,
               session: response.data.session,
               error: null,
-              isLoading: false
+              isLoading: false,
+              initialized: true
             })
           }
 
@@ -142,9 +162,11 @@ export const usePostgresAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
+      storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         user: state.user,
-        session: state.session
+        session: state.session,
+        initialized: state.initialized
       })
     }
   )
