@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { useLocation } from 'react-router-dom'
-import { useAuthStore } from '../../stores/authStore'
+import { useState, useEffect } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { usePostgresAuthStore } from '../../stores/postgresAuthStore'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -8,11 +8,12 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
-  const { signIn } = useAuthStore()
+  const { signIn } = usePostgresAuthStore()
   const location = useLocation()
+  const navigate = useNavigate()
 
   // Verifica mensagem de sucesso no state
-  useState(() => {
+  useEffect(() => {
     const message = location.state?.message
     if (message) {
       setSuccessMessage(message)
@@ -33,7 +34,7 @@ export default function LoginPage() {
       
       if (signInError) {
         console.error('LoginPage: Erro no login:', signInError)
-        if (signInError.message.includes('Invalid login credentials')) {
+        if (signInError.message.includes('Credenciais inválidas')) {
           setError('Email ou senha inválidos')
         } else {
           setError(signInError.message)
@@ -42,6 +43,8 @@ export default function LoginPage() {
       }
 
       console.log('LoginPage: Login bem sucedido!')
+      // Redirecionar para a página principal após login bem-sucedido
+      navigate('/')
     } catch (err: any) {
       console.error('LoginPage: Erro no login:', err)
       setError(err.message || 'Erro ao fazer login')
@@ -113,11 +116,6 @@ export default function LoginPage() {
             >
               {loading ? 'Entrando...' : 'Entrar'}
             </button>
-          </div>
-          <div className="text-center mt-4">
-            <a href="/interesse" className="text-sm text-indigo-600 hover:text-indigo-500">
-              Quero ser um dos primeiros a testar
-            </a>
           </div>
         </form>
       </div>
