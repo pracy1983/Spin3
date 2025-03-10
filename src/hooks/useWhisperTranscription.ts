@@ -20,29 +20,52 @@ export function useWhisperTranscription() {
     }
   }, []);
 
-  const startRecording = useCallback(() => {
-    setError(null);
-    setSegments([]);
+  const startRecording = useCallback(async () => {
+    try {
+      setError(null);
+      setSegments([]);
 
-    recorderRef.current = new AudioRecorder({
-      onDataAvailable: handleAudioData,
-      onError: setError
-    });
+      recorderRef.current = new AudioRecorder({
+        onDataAvailable: handleAudioData,
+        onError: (errorMessage) => {
+          console.error('Erro no gravador:', errorMessage);
+          setError(errorMessage);
+          setIsRecording(false);
+        }
+      });
 
-    recorderRef.current.start();
-    setIsRecording(true);
+      await recorderRef.current.start();
+      setIsRecording(true);
+    } catch (error) {
+      console.error('Erro ao iniciar gravação:', error);
+      setError('Falha ao iniciar gravação. Verifique as permissões de áudio.');
+      setIsRecording(false);
+      throw error; // Propaga o erro para mostrar o estado de erro no botão
+    }
   }, [handleAudioData]);
 
-  const stopRecording = useCallback(() => {
-    recorderRef.current?.stop();
-    setIsRecording(false);
+  const stopRecording = useCallback(async () => {
+    try {
+      if (recorderRef.current) {
+        await recorderRef.current.stop();
+      }
+    } catch (error) {
+      console.error('Erro ao parar gravação:', error);
+    } finally {
+      setIsRecording(false);
+    }
   }, []);
 
-  const toggleRecording = useCallback(() => {
-    if (isRecording) {
-      stopRecording();
-    } else {
-      startRecording();
+  const toggleRecording = useCallback(async () => {
+    try {
+      if (isRecording) {
+        await stopRecording();
+      } else {
+        await startRecording();
+      }
+    } catch (error) {
+      console.error('Erro ao alternar gravação:', error);
+      throw error;
     }
   }, [isRecording, startRecording, stopRecording]);
 

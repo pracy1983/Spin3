@@ -2,24 +2,35 @@ import React, { useRef, useEffect } from 'react';
 import { ScrollText } from 'lucide-react';
 import { LanguageSelector } from './LanguageSelector';
 import type { Language } from './LanguageSelector';
+import type { WhisperResponse } from '../lib/whisper/types';
 
 interface TranscriptionPanelProps {
   transcript: string;
   interimTranscript?: string;
   language: Language;
   onLanguageChange: (language: Language) => void;
+  systemTranscriptions?: WhisperResponse[];
+  currentSystemTranscription?: string;
 }
 
-export function TranscriptionPanel({ transcript, interimTranscript = '', language, onLanguageChange }: TranscriptionPanelProps) {
+export function TranscriptionPanel({ 
+  transcript, 
+  interimTranscript = '', 
+  language, 
+  onLanguageChange,
+  systemTranscriptions = [],
+  currentSystemTranscription = ''
+}: TranscriptionPanelProps) {
   const transcriptRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (transcriptRef.current) {
       transcriptRef.current.scrollTop = transcriptRef.current.scrollHeight;
     }
-  }, [transcript, interimTranscript]);
+  }, [transcript, interimTranscript, systemTranscriptions, currentSystemTranscription]);
 
   const messages = transcript.split('\n\n').filter(Boolean);
+  const systemMessages = systemTranscriptions.map(t => t.text);
 
   return (
     <div className="w-full lg:w-1/2 p-4 lg:p-6 bg-gray-800/80 rounded-lg shadow-lg shadow-purple-500/5 border border-purple-500/10">
@@ -34,14 +45,27 @@ export function TranscriptionPanel({ transcript, interimTranscript = '', languag
         />
       </div>
       <div ref={transcriptRef} className="h-[calc(50vh-8rem)] lg:h-[calc(100vh-12rem)] overflow-y-auto space-y-4">
+        {/* Transcrições do microfone */}
         {messages.map((message, index) => (
-          <p key={index} className="text-gray-100 p-3 bg-gray-700/50 rounded-lg border border-purple-500/10">
+          <p key={`mic-${index}`} className="text-gray-100 p-3 bg-gray-700/50 rounded-lg border border-purple-500/10">
             {message}
           </p>
         ))}
         {interimTranscript && (
           <p className="text-gray-400 p-3 bg-gray-700/30 rounded-lg border border-purple-500/5">
             {interimTranscript}
+          </p>
+        )}
+
+        {/* Transcrições do sistema */}
+        {systemMessages.map((message, index) => (
+          <p key={`sys-${index}`} className="text-gray-100 p-3 bg-gray-700/50 rounded-lg border border-blue-500/10">
+            {message}
+          </p>
+        ))}
+        {currentSystemTranscription && (
+          <p className="text-gray-400 p-3 bg-gray-700/30 rounded-lg border border-blue-500/5">
+            {currentSystemTranscription}
           </p>
         )}
       </div>

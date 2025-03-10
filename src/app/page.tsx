@@ -5,9 +5,26 @@ import { TranscriptionPanel } from '../components/TranscriptionPanel'
 import { RecordButton } from '../components/RecordButton'
 import { useTranscription } from '../hooks/useTranscription'
 import { useAISuggestions } from '../hooks/useAISuggestions'
+import { useSystemAudio } from '../hooks/useSystemAudio'
 
 export default function HomePage() {
-  const { isRecording, transcript, interimTranscript, toggleRecording, language, changeLanguage } = useTranscription()
+  const { 
+    isRecording: isMicRecording, 
+    transcript, 
+    interimTranscript, 
+    toggleRecording: toggleMic, 
+    language, 
+    changeLanguage 
+  } = useTranscription()
+  
+  const { 
+    isRecording: isSystemRecording, 
+    error: systemError, 
+    toggleRecording: toggleSystem,
+    transcriptions: systemTranscriptions,
+    currentTranscription: currentSystemTranscription
+  } = useSystemAudio()
+  
   const { suggestions, error: suggestionsError, generateSuggestions } = useAISuggestions()
 
   useEffect(() => {
@@ -29,13 +46,25 @@ export default function HomePage() {
           interimTranscript={interimTranscript}
           language={language}
           onLanguageChange={changeLanguage}
+          systemTranscriptions={systemTranscriptions}
+          currentSystemTranscription={currentSystemTranscription}
         />
       </div>
 
-      <RecordButton 
-        isRecording={isRecording} 
-        onToggleRecording={toggleRecording} 
-      />
+      <div className="fixed bottom-4 lg:bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4">
+        <RecordButton 
+          isRecording={isMicRecording} 
+          onToggleRecording={toggleMic}
+          label="Microfone"
+        />
+
+        <RecordButton 
+          isRecording={isSystemRecording} 
+          onToggleRecording={toggleSystem}
+          label="Áudio do Sistema"
+          error={systemError}
+        />
+      </div>
     </main>
   )
 }
