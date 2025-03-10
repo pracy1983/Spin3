@@ -77,4 +77,25 @@ Este projeto segue os princípios de Clean Architecture e SOLID para garantir:
 
 ## Migração para PostgreSQL
 
-Este projeto foi migrado do Supabase para PostgreSQL local.
+A aplicação foi migrada do Supabase para um servidor PostgreSQL local. As seguintes alterações foram feitas:
+
+1. Substituição do cliente Supabase por uma camada de compatibilidade que usa PostgreSQL
+2. Substituição do cliente Admin do Supabase por uma versão compatível com PostgreSQL
+3. Criação do cliente PostgreSQL para estabelecer a conexão com o banco de dados
+4. Atualização dos componentes para usar o `postgresAuthStore`
+
+### Variáveis de ambiente necessárias
+
+As seguintes variáveis de ambiente devem ser configuradas no Netlify:
+
+```
+VITE_POSTGRES_HOST=easypanel.server.pracy.com.br
+VITE_POSTGRES_PORT=5432
+VITE_POSTGRES_DATABASE=spin3_db
+VITE_POSTGRES_USER=postgres
+VITE_POSTGRES_PASSWORD=123qwe123
+VITE_POSTGRES_SSL=false
+VITE_JWT_SECRET=chave1983272af3
+```
+
+Após configurar as variáveis de ambiente, é necessário forçar um novo deploy no Netlify.

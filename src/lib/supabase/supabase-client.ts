@@ -1,28 +1,83 @@
-import { createClient } from '@supabase/supabase-js'
+// Este arquivo agora serve como uma camada de compatibilidade para migração do Supabase para PostgreSQL
+// Ele simula a API do Supabase, mas na verdade usa o PostgreSQL
 
-// Carrega as variáveis de ambiente
-const supabaseUrl = 'https://mmdtsjxtwlphojcrakow.supabase.co'
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tZHRzanh0d2xwaG9qY3Jha293Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzU5NDY0ODYsImV4cCI6MjA1MTUyMjQ4Nn0.ScQ5QE7-jobQ0n9y-0v_We3KB_lotQGqnbnY6fWrHPQ'
+import { usePostgresAuthStore } from '../../stores/postgresAuthStore'
 
-if (!supabaseUrl) {
-  throw new Error('VITE_SUPABASE_URL é necessário')
-}
-
-if (!supabaseAnonKey) {
-  throw new Error('VITE_SUPABASE_ANON_KEY é necessário')
+// Criando um objeto que simula a API do Supabase
+const createFakeSupabaseClient = () => {
+  return {
+    auth: {
+      getUser: async () => {
+        const { user } = usePostgresAuthStore.getState()
+        return { data: { user }, error: null }
+      },
+      getSession: async () => {
+        const { user, session } = usePostgresAuthStore.getState()
+        return { 
+          data: { 
+            session: user ? session : null 
+          }, 
+          error: null 
+        }
+      },
+      signInWithPassword: async ({ email, password }: { email: string, password: string }) => {
+        const store = usePostgresAuthStore.getState()
+        try {
+          const result = await store.signIn(email, password)
+          if (result.error) {
+            throw result.error
+          }
+          return { data: { user: store.user, session: store.session }, error: null }
+        } catch (error) {
+          return { data: { user: null }, error }
+        }
+      },
+      signOut: async () => {
+        const store = usePostgresAuthStore.getState()
+        try {
+          await store.signOut()
+          return { error: null }
+        } catch (error) {
+          return { error }
+        }
+      },
+      onAuthStateChange: (callback: any) => {
+        // Como o postgresAuthStore não tem um método subscribe nativo,
+        // vamos implementar uma solução alternativa usando um intervalo
+        // que verifica periodicamente o estado de autenticação
+        
+        let previousUser = usePostgresAuthStore.getState().user
+        
+        const interval = setInterval(() => {
+          const currentUser = usePostgresAuthStore.getState().user
+          
+          // Se o estado do usuário mudou, chama o callback
+          if (JSON.stringify(previousUser) !== JSON.stringify(currentUser)) {
+            previousUser = currentUser
+            const event = currentUser ? 'SIGNED_IN' : 'SIGNED_OUT'
+            callback(event, { 
+              session: currentUser ? { 
+                user: currentUser,
+                access_token: localStorage.getItem('auth-token') || 'fake-token',
+                refresh_token: 'fake-refresh-token'
+              } : null 
+            })
+          }
+        }, 1000) // Verifica a cada segundo
+        
+        // Retorna uma função para cancelar o intervalo
+        return { 
+          data: { 
+            subscription: { 
+              unsubscribe: () => clearInterval(interval) 
+            } 
+          } 
+        }
+      }
+    },
+    // Adicione outras APIs do Supabase conforme necessário
+  }
 }
 
 // Cliente público (para usuários) - singleton
-let supabaseInstance: ReturnType<typeof createClient> | null = null
-
-export const supabase = (() => {
-  if (!supabaseInstance) {
-    supabaseInstance = createClient(supabaseUrl, supabaseAnonKey, {
-      auth: {
-        persistSession: true,
-        storageKey: 'spin3-auth-token'
-      }
-    })
-  }
-  return supabaseInstance
-})()
+export const supabase = createFakeSupabaseClient()
