@@ -1,11 +1,11 @@
 import { useEffect } from 'react'
-import { ContextPanel } from '../components/ContextPanel'
-import { SuggestionsPanel } from '../components/SuggestionsPanel'
-import { TranscriptionPanel } from '../components/TranscriptionPanel'
-import { RecordButton } from '../components/RecordButton'
-import { useTranscription } from '../hooks/useTranscription'
-import { useAISuggestions } from '../hooks/useAISuggestions'
-import { useSystemAudio } from '../hooks/useSystemAudio'
+import { ContextPanel } from '@/components/ContextPanel'
+import { SuggestionsPanel } from '@/components/SuggestionsPanel'
+import { TranscriptionPanel } from '@/components/TranscriptionPanel'
+import { RecordButton } from '@/components/RecordButton'
+import { useTranscription } from '@/hooks/useTranscription'
+import { useAISuggestions } from '@/hooks/useAISuggestions'
+import { useSystemAudio } from '@/hooks/useSystemAudio'
 
 export default function HomePage() {
   const { 
