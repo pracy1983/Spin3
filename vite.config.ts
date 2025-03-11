@@ -42,7 +42,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, './src')
-    }
+    },
+    extensions: ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json']
   },
   publicDir: 'public',
   // Expõe todas as variáveis de ambiente para o cliente
