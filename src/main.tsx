@@ -5,28 +5,15 @@ import HomePage from './app/page'
 import LoginPage from './app/login/page'
 import { Layout } from './components/Layout'
 import './index.css'
-import { useAuthStore } from './stores/authStore'
+// Importando o novo store de autenticação
+import { usePostgresAuthStore } from './stores/postgresAuthStore'
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
-  const { user, isLoading, initialized } = useAuthStore()
+  // Usando o novo store de autenticação
+  const { user, isLoading, initialized } = usePostgresAuthStore()
   const location = useLocation()
-  const navigate = useNavigate()
 
-  useEffect(() => {
-    if (!initialized || isLoading) return
-
-    const isLoginPage = location.pathname === '/login'
-    const isAuthenticated = !!user
-
-    if (isAuthenticated && isLoginPage) {
-      console.log('AuthGuard: Usuário autenticado, redirecionando para home')
-      navigate('/', { replace: true })
-    } else if (!isAuthenticated && !isLoginPage) {
-      console.log('AuthGuard: Usuário não autenticado, redirecionando para login')
-      navigate('/login', { replace: true, state: { from: location } })
-    }
-  }, [user, isLoading, initialized, location, navigate])
-
+  // Verificar se o usuário está autenticado
   if (!initialized || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900">
@@ -35,17 +22,44 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
     )
   }
 
+  // Se não estiver autenticado, redirecionar para login
+  if (!user) {
+    console.log('AuthGuard: Usuário não autenticado, redirecionando para login')
+    return <Navigate to="/login" state={{ from: location }} replace />
+  }
+
+  // Se estiver autenticado, renderizar o conteúdo protegido
   return <>{children}</>
+}
+
+function LoginRoute() {
+  const { user, isLoading, initialized } = usePostgresAuthStore()
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  useEffect(() => {
+    // Só verificar redirecionamento quando a inicialização estiver completa
+    if (!initialized || isLoading) return
+
+    // Se o usuário estiver autenticado e estiver na página de login, redirecionar para home
+    if (user) {
+      console.log('LoginRoute: Usuário autenticado, redirecionando para home')
+      const from = location.state?.from?.pathname || '/'
+      navigate(from, { replace: true })
+    }
+  }, [user, isLoading, initialized, navigate, location])
+
+  // Renderizar a página de login normalmente
+  return <LoginPage />
 }
 
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/login" element={
-        <AuthGuard>
-          <LoginPage />
-        </AuthGuard>
-      } />
+      {/* A rota de login NÃO usa AuthGuard */}
+      <Route path="/login" element={<LoginRoute />} />
+      
+      {/* Rotas protegidas usam AuthGuard */}
       <Route path="/" element={
         <AuthGuard>
           <Layout>
@@ -59,7 +73,8 @@ function AppRoutes() {
 }
 
 function App() {
-  const { initialize } = useAuthStore()
+  // Usando o novo store de autenticação
+  const { initialize } = usePostgresAuthStore()
 
   useEffect(() => {
     let mounted = true
